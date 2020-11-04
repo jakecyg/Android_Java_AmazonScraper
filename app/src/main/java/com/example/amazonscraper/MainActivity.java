@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> arrayList;
     String[] tt = {"One","two","tjree","fpir","give","six","seven","ekgjt","nine","tne","eleven","twev;ev","thirteen","furteen"};
     String[] bt = {"sdfsd","asfdase","awefawef","wefasf","awefawef","zxcvxcv","etnrtn","ea5rherh","xzfvzd","aerherg","awraweg","awfaewf;ev","awegf","aeherg"};
+    private static final String TAG = "MainActivity";
+    private static final String KEY_TITLE = "title";
+    private static final String KEY_DESCRIPTION = "description";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
