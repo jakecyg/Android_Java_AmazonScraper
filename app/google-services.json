@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "799526404339",
+    "firebase_url": "https://scraper-android-jakechoi.firebaseio.com",
+    "project_id": "scraper-android-jakechoi",
+    "storage_bucket": "scraper-android-jakechoi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:799526404339:android:f9bbb366de216442fe3786",
+        "android_client_info": {
+          "package_name": "com.example.amazonscraper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "799526404339-ku055cehtjfjlb6p9gsu8544m9foa2g0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_D5R3fIaOm3czhmF_xmZF8f69sJPw65g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "799526404339-ku055cehtjfjlb6p9gsu8544m9foa2g0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
