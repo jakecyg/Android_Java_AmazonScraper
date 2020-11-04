@@ -32,19 +32,31 @@ public class AmazonScrape extends AsyncTask {
     private static final String KEY_PRICE = "price";
     private static final String KEY_PRICE_BEFORE_DISCOUNT = "price_before_discount";
     private static final String KEY_PRICE_AFTER_DISCOUNT = "price_after_discount";
+    private static final String KEY_ITEM_URL = "item_url";
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private String compareURL;
     //need to set default constructor to recieve a context from the main
     //in order to access the same sharedPreferences object using the same context
     public AmazonScrape (Context context){
         mContext = context;
     }
+    public AmazonScrape (Context context, String url){
+        mContext = context;
+        compareURL = url;
+    }
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        Context context = mContext;
-        sharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        String url = sharedPreferences.getString("url", "");
-        urlToWatch = url;
+        if(compareURL == null){
+            Context context = mContext;
+            sharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+            String url = sharedPreferences.getString("url", "");
+            urlToWatch = url;
+        }
+        else{
+            urlToWatch = compareURL;
+        }
+
     }
 
     @Override
@@ -100,6 +112,7 @@ public class AmazonScrape extends AsyncTask {
         Map<String, Object> priceObject = new HashMap<>();
 //        priceObject.put(KEY_TITLE, itemTitle);
         priceObject.put(KEY_PRICE, formattedPrice);
+        priceObject.put(KEY_ITEM_URL, urlToWatch);
 
         //pass the map the firestore database
         //create AmazonPrice collection, document and send the key value pair to the document
@@ -109,6 +122,8 @@ public class AmazonScrape extends AsyncTask {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(mContext, "Data saved to FireBase", Toast.LENGTH_SHORT).show();
+                        Log.d("jake","jere");
+
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -119,12 +134,13 @@ public class AmazonScrape extends AsyncTask {
                     }
                 });
     }
-    public void saveToOnSaleFireBase(String itemTitle, String onDiscount_BeforeDiscount , String onDiscount_AfterDiscount ){
+    public void saveToOnSaleFireBase(String itemTitle, String onDiscount_BeforeDiscount , String onDiscount_AfterDiscount){
         //create container to store in firebase
         Map<String, Object> priceObject = new HashMap<>();
 //        priceObject.put(KEY_TITLE, itemTitle);
         priceObject.put(KEY_PRICE_BEFORE_DISCOUNT, onDiscount_BeforeDiscount);
         priceObject.put(KEY_PRICE_AFTER_DISCOUNT, onDiscount_AfterDiscount);
+        priceObject.put(KEY_ITEM_URL, urlToWatch);
 
         //pass the map the firestore database
         //create AmazonPrice collection, document and send the key value pair to the document

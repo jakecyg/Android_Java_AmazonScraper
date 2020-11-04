@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="?android:attr/listPreferredItemHeight"
     android:padding="6dip"
     android:orientation="horizontal">
     <ImageView
@@ -15,15 +15,13 @@
         android:layout_height="match_parent">
         <TextView
             android:id="@+id/toptext"
-            android:text="Top text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:textSize="20sp"
             android:gravity="center_vertical" />
         <TextView
             android:id="@+id/bottomtext"
-            android:text="bottom text"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
