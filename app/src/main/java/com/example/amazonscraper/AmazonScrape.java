@@ -33,6 +33,7 @@ public class AmazonScrape extends AsyncTask {
     private static final String KEY_PRICE_BEFORE_DISCOUNT = "price_before_discount";
     private static final String KEY_PRICE_AFTER_DISCOUNT = "price_after_discount";
     private static final String KEY_ITEM_URL = "item_url";
+    private static final String KEY_ITEM_IMAGE_URL = "item_image_url";
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String compareURL;
     //need to set default constructor to recieve a context from the main
@@ -82,6 +83,13 @@ public class AmazonScrape extends AsyncTask {
             //Item Title
             String itemTitleS = itemTitle.text();
 
+            //Item image source
+            Element itemImageSource = document.select("div.imgTagWrapper img").first();
+            String imageUrl = itemImageSource.attr("data-old-hires");
+
+
+//            String url = test.attr("abs:src");
+
 
             if(noDiscountItemPrice == null){
                 //Discounted item prices(before and after)
@@ -92,14 +100,14 @@ public class AmazonScrape extends AsyncTask {
                 String formattedBeforeDiscount = onDiscount_BeforeDiscountS.substring(3);
                 String formattedAfterDiscount = onDiscount_AfterDiscountS.substring(3);
 
-                saveToOnSaleFireBase(itemTitleS, formattedBeforeDiscount, formattedAfterDiscount);
+                saveToOnSaleFireBase(itemTitleS, formattedBeforeDiscount, formattedAfterDiscount, imageUrl);
 
             }
             else{
                 //noDiscount item price
                 String noDiscountItemPriceS = document.getElementById("priceblock_ourprice").text();
                 String formattedPrice = noDiscountItemPriceS.substring(3);
-                saveToNotOnSaleFireBase(itemTitleS, formattedPrice);
+                saveToNotOnSaleFireBase(itemTitleS, formattedPrice, imageUrl);
             }
 
         } catch (IOException e) {
@@ -109,12 +117,13 @@ public class AmazonScrape extends AsyncTask {
         return null;
     }
 
-    public void saveToNotOnSaleFireBase(String itemTitle, String formattedPrice){
+    public void saveToNotOnSaleFireBase(String itemTitle, String formattedPrice, String imageUrl){
         //create container to store in firebase
         Map<String, Object> itemContainer = new HashMap<>();
         itemContainer.put(KEY_TITLE, itemTitle);
         itemContainer.put(KEY_PRICE, formattedPrice);
         itemContainer.put(KEY_ITEM_URL, urlToWatch);
+        itemContainer.put(KEY_ITEM_IMAGE_URL, imageUrl);
 
         //pass the map the firestore database
         //create AmazonPrice collection, document and send the key value pair to the document
@@ -136,7 +145,7 @@ public class AmazonScrape extends AsyncTask {
                     }
                 });
     }
-    public void saveToOnSaleFireBase(String itemTitle, String onDiscount_BeforeDiscount , String onDiscount_AfterDiscount){
+    public void saveToOnSaleFireBase(String itemTitle, String onDiscount_BeforeDiscount , String onDiscount_AfterDiscount, String imageUrl){
         //create container to store in firebase
         Map<String, Object> itemContainer = new HashMap<>();
 //        priceObject.put(KEY_TITLE, itemTitle);
@@ -144,6 +153,7 @@ public class AmazonScrape extends AsyncTask {
         itemContainer.put(KEY_PRICE_BEFORE_DISCOUNT, onDiscount_BeforeDiscount);
         itemContainer.put(KEY_PRICE_AFTER_DISCOUNT, onDiscount_AfterDiscount);
         itemContainer.put(KEY_ITEM_URL, urlToWatch);
+        itemContainer.put(KEY_ITEM_IMAGE_URL, imageUrl);
 
         //pass the map the firestore database
         //create AmazonPrice collection, document and send the key value pair to the document

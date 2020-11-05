@@ -2,15 +2,24 @@ package com.example.amazonscraper;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.example.amazonscraper.R;
 import com.example.amazonscraper.WatchItem;
+
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 //custom ArrayAdapter for our ListView
@@ -39,6 +48,7 @@ public class WatchItemAdapter extends ArrayAdapter<WatchItem> {
             TextView tt = (TextView) v.findViewById(R.id.toptext);
             TextView bt = (TextView) v.findViewById(R.id.bottomtext);
             Button btn = (Button) v.findViewById(R.id.goButton);
+            ImageView imageView= (ImageView) v.findViewById(R.id.itemImage);
             if (tt != null) {
                 tt.setText(o.getItemTitle());
             }
@@ -57,7 +67,38 @@ public class WatchItemAdapter extends ArrayAdapter<WatchItem> {
                     }
                 });
             }
+            if(imageView != null){
+                String url = o.getImage_url();
+                DownLoadItemImage downLoadItemImage = new DownLoadItemImage(imageView);
+                downLoadItemImage.execute(url);
+            }
         }
         return v;
+    }
+
+    //download image in bitmap format and set imageview
+    private class DownLoadItemImage extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public DownLoadItemImage(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return mIcon11;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+        }
     }
 }

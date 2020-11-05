@@ -64,13 +64,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         listView = findViewById(R.id.watchItem_list);
+        ViewCompat.setNestedScrollingEnabled(listView, true);
         populateListView();
-
-
-
-
     }
 
+    //populates list view by populating watchItemArrayList
+//    1. query database
+//    2. loop through all existing documents
+//    3. create a WatchItem object per document by extracting the fields and passing them as arguments
+//    4. add each created WatchItem object to the watchItemArrayList
+//    5. set watchItem adapter
+//    6. hook up the adapter with the listview
     private void populateListView() {
         ArrayList<WatchItem> watchItemArrayList = new ArrayList<>();
         db.collection("NotOnSale").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -78,11 +82,13 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if(task.isSuccessful()){
                     for(QueryDocumentSnapshot document : task.getResult()) {
-                        WatchItem watchItem1 = new WatchItem(document.get("title").toString(), document.get("price").toString(), document.get("item_url").toString());
+                        WatchItem watchItem1 = new WatchItem(document.get("title").toString(),
+                                                             document.get("price").toString(),
+                                                             document.get("item_url").toString(),
+                                                             document.get("item_image_url").toString());
                         watchItemArrayList.add(watchItem1);
                     }
                     //life saver code!! finally get to scroll in my nestedScrollview!!
-                    ViewCompat.setNestedScrollingEnabled(listView, true);
                     watchItemAdapter = new WatchItemAdapter(getApplicationContext(), R.layout.watchitem_listview, watchItemArrayList);
                     listView.setAdapter(watchItemAdapter);
 
@@ -110,15 +116,19 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Please enter a URL", Toast.LENGTH_SHORT).show();
 
         else {
+            //save the url in the editText to shared preferences => this is used in the AmazonScraper class to crawl the url using jsoup
             SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             String urlToPass = urlText.getText().toString();
             editor.putString("url", urlToPass);
             editor.apply();
+            //Create an instance of the AmazonScrape class and run the Async method
             AmazonScrape amazonScrape = new AmazonScrape(getApplicationContext());
             amazonScrape.execute();
         }
+        //re-populate listview with added item
         populateListView();
+        //this is supposed to refresh the listview right away but it doesnt => only does so after second click of the button. Why?
         listView.invalidateViews();
     }
 
@@ -153,8 +163,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //get all urls in all documents and store them in list
+        //at the start of the app it must query the database for all stored items
+        //so that it can crawl amazon again for the latest value
+
         getUrls();
+        //for each url in db, grab price again(to see if price changed or discounts happening)
         for(String url : urlInDbList){
             AmazonScrape amazonScrape = new AmazonScrape(MainActivity.this, url);
             amazonScrape.execute();
@@ -162,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //get all urls in all documents and store them in list
     private void getUrls() {
         CollectionReference notOnSaleRef = db.collection("NotOnSale");
         notOnSaleRef.get()

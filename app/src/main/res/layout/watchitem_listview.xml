@@ -5,8 +5,9 @@
     android:padding="6dip"
     android:orientation="horizontal">
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/itemImage"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:src="@drawable/ic_launcher_foreground"/>
 
 
@@ -27,7 +28,7 @@
         <TextView
             android:id="@+id/bottomtext"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="1dp"
             android:layout_weight="1"
             android:ellipsize="marquee"
             android:singleLine="true" />
