@@ -58,40 +58,50 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_ITEM_URL = "item_url";
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     List<String> urlInDbList = new ArrayList<>();
+    WatchItemAdapter watchItemAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         listView = findViewById(R.id.watchItem_list);
-        //life saver code!! finally get to scroll in my nestedScrollview!!
-        ViewCompat.setNestedScrollingEnabled(listView, true);
-        WatchItem watchItem1 = new WatchItem("title","1", "qwe.com");
-        WatchItem watchItem2 = new WatchItem("2222","2222", "qwe.com");
-        ArrayList<WatchItem> watchItemArrayList = new ArrayList<>();
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem2);
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem1);
-        watchItemArrayList.add(watchItem1);
-        WatchItemAdapter watchItemAdapter = new WatchItemAdapter(this, R.layout.watchitem_listview, watchItemArrayList);
+        populateListView();
 
-        listView.setAdapter(watchItemAdapter);
+
+
 
     }
+
+    private void populateListView() {
+        ArrayList<WatchItem> watchItemArrayList = new ArrayList<>();
+        db.collection("NotOnSale").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(task.isSuccessful()){
+                    for(QueryDocumentSnapshot document : task.getResult()) {
+                        WatchItem watchItem1 = new WatchItem(document.get("title").toString(), document.get("price").toString(), document.get("item_url").toString());
+                        watchItemArrayList.add(watchItem1);
+                    }
+                    //life saver code!! finally get to scroll in my nestedScrollview!!
+                    ViewCompat.setNestedScrollingEnabled(listView, true);
+                    watchItemAdapter = new WatchItemAdapter(getApplicationContext(), R.layout.watchitem_listview, watchItemArrayList);
+                    listView.setAdapter(watchItemAdapter);
+
+                } else {
+                    Log.d("Jake", "Error getting documents: ", task.getException());
+                }
+            }
+        });
+    }
+
+//    @Override
+//    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                watchItemAdapter.notifyDataSetChanged();
+//            }
+//        });
+//    }
 
     //called when a url is entered and the get price button is clicked
     public void getPrice(View view) {
@@ -108,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
             AmazonScrape amazonScrape = new AmazonScrape(getApplicationContext());
             amazonScrape.execute();
         }
+        populateListView();
+        listView.invalidateViews();
     }
 
     //Allows direct paste from clipboard; saves hassel of long click => paste
@@ -147,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
             AmazonScrape amazonScrape = new AmazonScrape(MainActivity.this, url);
             amazonScrape.execute();
         }
+
     }
 
     private void getUrls() {

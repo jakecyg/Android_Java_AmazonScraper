@@ -67,7 +67,9 @@ public class AmazonScrape extends AsyncTask {
     //main method of the async class
     @Override
     protected Object doInBackground(Object[] objects) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+        if(sharedPreferences != null){
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+        }
         try {
             Document document = Jsoup.connect(urlToWatch).get();
 
@@ -87,8 +89,8 @@ public class AmazonScrape extends AsyncTask {
                 String  onDiscount_AfterDiscountS = onDiscount_AfterDiscount.text();
 
                 //Substring past dollar sign
-                String formattedBeforeDiscount = onDiscount_BeforeDiscountS.substring(5);
-                String formattedAfterDiscount = onDiscount_AfterDiscountS.substring(5);
+                String formattedBeforeDiscount = onDiscount_BeforeDiscountS.substring(3);
+                String formattedAfterDiscount = onDiscount_AfterDiscountS.substring(3);
 
                 saveToOnSaleFireBase(itemTitleS, formattedBeforeDiscount, formattedAfterDiscount);
 
@@ -96,7 +98,7 @@ public class AmazonScrape extends AsyncTask {
             else{
                 //noDiscount item price
                 String noDiscountItemPriceS = document.getElementById("priceblock_ourprice").text();
-                String formattedPrice = noDiscountItemPriceS.substring(5);
+                String formattedPrice = noDiscountItemPriceS.substring(3);
                 saveToNotOnSaleFireBase(itemTitleS, formattedPrice);
             }
 
@@ -109,15 +111,15 @@ public class AmazonScrape extends AsyncTask {
 
     public void saveToNotOnSaleFireBase(String itemTitle, String formattedPrice){
         //create container to store in firebase
-        Map<String, Object> priceObject = new HashMap<>();
-//        priceObject.put(KEY_TITLE, itemTitle);
-        priceObject.put(KEY_PRICE, formattedPrice);
-        priceObject.put(KEY_ITEM_URL, urlToWatch);
+        Map<String, Object> itemContainer = new HashMap<>();
+        itemContainer.put(KEY_TITLE, itemTitle);
+        itemContainer.put(KEY_PRICE, formattedPrice);
+        itemContainer.put(KEY_ITEM_URL, urlToWatch);
 
         //pass the map the firestore database
         //create AmazonPrice collection, document and send the key value pair to the document
 //        db.document("AmazonPrice/AmazonScraper"); this does the same thing as below; shortcut
-        db.collection("NotOnSale").document(itemTitle).set(priceObject)
+        db.collection("NotOnSale").document(itemTitle).set(itemContainer)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -136,16 +138,17 @@ public class AmazonScrape extends AsyncTask {
     }
     public void saveToOnSaleFireBase(String itemTitle, String onDiscount_BeforeDiscount , String onDiscount_AfterDiscount){
         //create container to store in firebase
-        Map<String, Object> priceObject = new HashMap<>();
+        Map<String, Object> itemContainer = new HashMap<>();
 //        priceObject.put(KEY_TITLE, itemTitle);
-        priceObject.put(KEY_PRICE_BEFORE_DISCOUNT, onDiscount_BeforeDiscount);
-        priceObject.put(KEY_PRICE_AFTER_DISCOUNT, onDiscount_AfterDiscount);
-        priceObject.put(KEY_ITEM_URL, urlToWatch);
+        itemContainer.put(KEY_TITLE, itemTitle);
+        itemContainer.put(KEY_PRICE_BEFORE_DISCOUNT, onDiscount_BeforeDiscount);
+        itemContainer.put(KEY_PRICE_AFTER_DISCOUNT, onDiscount_AfterDiscount);
+        itemContainer.put(KEY_ITEM_URL, urlToWatch);
 
         //pass the map the firestore database
         //create AmazonPrice collection, document and send the key value pair to the document
 //        db.document("AmazonPrice/AmazonScraper"); this does the same thing as below; shortcut
-        db.collection("OnSale").document(itemTitle).set(priceObject)
+        db.collection("OnSale").document(itemTitle).set(itemContainer)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

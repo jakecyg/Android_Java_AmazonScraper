@@ -1,10 +1,13 @@
 package com.example.amazonscraper;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 import com.example.amazonscraper.R;
 import com.example.amazonscraper.WatchItem;
@@ -35,11 +38,24 @@ public class WatchItemAdapter extends ArrayAdapter<WatchItem> {
         if (o != null) {
             TextView tt = (TextView) v.findViewById(R.id.toptext);
             TextView bt = (TextView) v.findViewById(R.id.bottomtext);
+            Button btn = (Button) v.findViewById(R.id.goButton);
             if (tt != null) {
-                tt.setText("Price: " + o.getPrice());
+                tt.setText(o.getItemTitle());
             }
             if (bt != null) {
-                bt.setText("Link: " + o.getUrl());
+                bt.setText(o.getPrice());
+            }
+            if(btn != null){
+                btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //setting button onclick listener to open item url
+                        Uri uri = Uri.parse(o.getUrl());
+                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        c.startActivity(intent);
+                    }
+                });
             }
         }
         return v;

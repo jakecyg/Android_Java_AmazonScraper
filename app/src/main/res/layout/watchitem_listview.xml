@@ -8,6 +8,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_launcher_foreground"/>
+
+
+
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="0dip"
@@ -20,12 +23,27 @@
             android:layout_weight="1"
             android:textSize="20sp"
             android:gravity="center_vertical" />
+
         <TextView
             android:id="@+id/bottomtext"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:singleLine="true"
-            android:ellipsize="marquee" />
+            android:ellipsize="marquee"
+            android:singleLine="true" />
+
     </LinearLayout>
+
+    <Button
+        android:id="@+id/goButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GO"/>
+<!--    <TextView-->
+
+<!--        android:layout_width="45dp"-->
+<!--        android:layout_height="64dp"-->
+<!--        android:text="GO"-->
+<!--        android:autoLink="web"/>-->
+<!--    style="@android:style/Widget.Button"-->
 </LinearLayout>
