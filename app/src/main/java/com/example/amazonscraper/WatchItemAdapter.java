@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -53,7 +54,13 @@ public class WatchItemAdapter extends ArrayAdapter<WatchItem> {
                 tt.setText(o.getItemTitle());
             }
             if (bt != null) {
-                bt.setText(o.getPrice());
+                if(o.getPrice() != ""){
+                    bt.setText(o.getPrice());
+                }
+                else{
+                    bt.setText("ONSALE:" + o.getPriceBeforeDiscount() + "=>" + o.getPriceAFterDiscount());
+                    bt.setTextColor(Color.RED);
+                }
             }
             if(btn != null){
                 btn.setOnClickListener(new View.OnClickListener() {

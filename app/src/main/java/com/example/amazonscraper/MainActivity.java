@@ -1,6 +1,7 @@
 package com.example.amazonscraper;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
@@ -28,7 +29,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -68,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         populateListView();
     }
 
+
     //populates list view by populating watchItemArrayList
 //    1. query database
 //    2. loop through all existing documents
@@ -77,13 +81,15 @@ public class MainActivity extends AppCompatActivity {
 //    6. hook up the adapter with the listview
     private void populateListView() {
         ArrayList<WatchItem> watchItemArrayList = new ArrayList<>();
-        db.collection("NotOnSale").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        db.collection("items").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if(task.isSuccessful()){
                     for(QueryDocumentSnapshot document : task.getResult()) {
                         WatchItem watchItem1 = new WatchItem(document.get("title").toString(),
                                                              document.get("price").toString(),
+                                                             document.get("price_before_discount").toString(),
+                                                             document.get("price_after_discount").toString(),
                                                              document.get("item_url").toString(),
                                                              document.get("item_image_url").toString());
                         watchItemArrayList.add(watchItem1);
@@ -157,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
     }
 
     @Override
@@ -168,17 +173,14 @@ public class MainActivity extends AppCompatActivity {
 
         getUrls();
         //for each url in db, grab price again(to see if price changed or discounts happening)
-        for(String url : urlInDbList){
-            AmazonScrape amazonScrape = new AmazonScrape(MainActivity.this, url);
-            amazonScrape.execute();
-        }
+
 
     }
 
     //get all urls in all documents and store them in list
     private void getUrls() {
-        CollectionReference notOnSaleRef = db.collection("NotOnSale");
-        notOnSaleRef.get()
+        CollectionReference items = db.collection("items");
+        items.get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -187,6 +189,10 @@ public class MainActivity extends AppCompatActivity {
                             if(doc.get(KEY_ITEM_URL) != null){
                                 urlInDbList.add(doc.get(KEY_ITEM_URL).toString());
                             }
+                        }
+                        for(String url : urlInDbList){
+                            AmazonScrape amazonScrape = new AmazonScrape(MainActivity.this, url);
+                            amazonScrape.execute();
                         }
                     }
                 })
@@ -198,26 +204,26 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        CollectionReference onSaleRef = db.collection("OnSale");
-        onSaleRef.get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        List<DocumentSnapshot> documentSnapshotList = queryDocumentSnapshots.getDocuments();
-                        for(DocumentSnapshot doc : documentSnapshotList){
-                            if(doc.get(KEY_ITEM_URL) != null){
-                                urlInDbList.add(doc.get(KEY_ITEM_URL).toString());
-                            }
-                        }
-                        Toast.makeText(MainActivity.this, "Database updated;url count=" + urlInDbList.size(), Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(MainActivity.this, "Error occured. Data not saved to FireBase", Toast.LENGTH_SHORT).show();
-                        Log.d("AmazonScrape.java", e.toString());
-                    }
-                });
+//        CollectionReference onSaleRef = db.collection("OnSale");
+//        onSaleRef.get()
+//                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+//                        List<DocumentSnapshot> documentSnapshotList = queryDocumentSnapshots.getDocuments();
+//                        for(DocumentSnapshot doc : documentSnapshotList){
+//                            if(doc.get(KEY_ITEM_URL) != null){
+//                                urlInDbList.add(doc.get(KEY_ITEM_URL).toString());
+//                            }
+//                        }
+//                        Toast.makeText(MainActivity.this, "Database updated;url count=" + urlInDbList.size(), Toast.LENGTH_SHORT).show();
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Toast.makeText(MainActivity.this, "Error occured. Data not saved to FireBase", Toast.LENGTH_SHORT).show();
+//                        Log.d("AmazonScrape.java", e.toString());
+//                    }
+//                });
     }
 }

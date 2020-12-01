@@ -92,11 +92,9 @@
             android:layout_height="wrap_content"
             app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
             app:title="Amazon Scraper">
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="250dp">
-
                 <TextView
                     android:id="@+id/editTextTextPersonName5"
                     android:layout_width="match_parent"
