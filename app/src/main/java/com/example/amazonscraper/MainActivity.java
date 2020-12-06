@@ -9,6 +9,7 @@ import androidx.core.view.ViewCompat;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -97,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
                     //life saver code!! finally get to scroll in my nestedScrollview!!
                     watchItemAdapter = new WatchItemAdapter(getApplicationContext(), R.layout.watchitem_listview, watchItemArrayList);
                     listView.setAdapter(watchItemAdapter);
+                    watchItemAdapter.notifyDataSetChanged();
 
                 } else {
                     Log.d("Jake", "Error getting documents: ", task.getException());
@@ -226,4 +228,12 @@ public class MainActivity extends AppCompatActivity {
 //                    }
 //                });
     }
+
+    public void openSetting(View view) {
+        startActivityForResult(new Intent(this, SettingActivity.class), 100);
+    }
+
+//    public void refreshList(View view) {
+//        watchItemAdapter.notifyDataSetChanged();
+//    }
 }
